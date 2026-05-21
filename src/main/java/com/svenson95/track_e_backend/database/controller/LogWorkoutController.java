@@ -30,7 +30,7 @@ public class LogWorkoutController {
     return logWorkoutService
         .findLatestLogForExercise(exercise, userId)
         .map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build());
+        .orElseGet(() -> ResponseEntity.noContent().build());
   }
 
   @PostMapping("/add/set/{date}/{userId}")
