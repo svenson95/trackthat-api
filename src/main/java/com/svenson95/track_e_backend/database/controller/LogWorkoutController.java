@@ -2,6 +2,7 @@ package com.svenson95.track_e_backend.database.controller;
 
 import com.svenson95.track_e_backend.database.dto.LogWorkoutDTO;
 import com.svenson95.track_e_backend.database.service.LogWorkoutService;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,7 +26,7 @@ public class LogWorkoutController {
   }
 
   @GetMapping("/get/latest-log/{exercise}/{userId}")
-  public LogWorkoutDTO getLatestLogForExercise(
+  public Optional<LogWorkoutDTO> getLatestLogForExercise(
       @PathVariable String exercise, @PathVariable String userId) {
     return logWorkoutService.findLatestLogForExercise(exercise, userId);
   }
