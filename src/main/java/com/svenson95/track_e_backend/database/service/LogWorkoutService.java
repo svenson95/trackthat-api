@@ -29,7 +29,7 @@ public class LogWorkoutService {
     this.logWorkoutMapper = logWorkoutMapper;
   }
 
-  public ResponseEntity<?> findLogWorkout(Long date, String userId) {
+  public ResponseEntity<LogWorkoutDTO> findLatestWorkoutByDate(Long date, String userId) {
     Instant setTime = Instant.ofEpochSecond(date);
     Instant earliestPossibleWorkoutStart = setTime.minus(WORKOUT_DURATION);
 
@@ -42,6 +42,23 @@ public class LogWorkoutService {
         .map(logWorkoutMapper::toDto)
         .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.noContent().build());
+  }
+
+  public ResponseEntity<List<LogWorkoutDTO>> findLogWorkoutsByDate(Long date, String userId) {
+    ZoneId zone = ZoneId.of("Europe/Berlin");
+    LocalDate targetDate = Instant.ofEpochSecond(date).atZone(zone).toLocalDate();
+
+    long startOfDay = targetDate.atStartOfDay(zone).toEpochSecond();
+    long endOfDay = targetDate.plusDays(1).atStartOfDay(zone).toEpochSecond() - 1;
+
+    List<LogWorkoutDTO> logs =
+        logWorkoutRepository
+            .findAllByUserIdAndDateBetweenOrderByDateDesc(userId, startOfDay, endOfDay)
+            .stream()
+            .map(logWorkoutMapper::toDto)
+            .toList();
+
+    return logs.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(logs);
   }
 
   public Optional<LogWorkoutDTO> findLatestLogForExercise(String exercise, String userId) {

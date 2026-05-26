@@ -2,6 +2,7 @@ package com.svenson95.track_e_backend.database.controller;
 
 import com.svenson95.track_e_backend.database.dto.LogWorkoutDTO;
 import com.svenson95.track_e_backend.database.service.LogWorkoutService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,9 +20,16 @@ public class LogWorkoutController {
 
   @Autowired private LogWorkoutService logWorkoutService;
 
-  @GetMapping("/get/{date}/{userId}")
-  public ResponseEntity<?> getLogWorkouts(@PathVariable Long date, @PathVariable String userId) {
-    return logWorkoutService.findLogWorkout(date, userId);
+  @GetMapping("/get/latest-workout/{date}/{userId}")
+  public ResponseEntity<LogWorkoutDTO> getLatestWorkoutByDate(
+      @PathVariable Long date, @PathVariable String userId) {
+    return logWorkoutService.findLatestWorkoutByDate(date, userId);
+  }
+
+  @GetMapping("/get/day/{date}/{userId}")
+  public ResponseEntity<List<LogWorkoutDTO>> getLogWorkoutsByDate(
+      @PathVariable Long date, @PathVariable String userId) {
+    return logWorkoutService.findLogWorkoutsByDate(date, userId);
   }
 
   @GetMapping("/get/latest-log/{exercise}/{userId}")
