@@ -45,6 +45,12 @@ public class WorkoutService {
         workoutRepository
             .findByWorkoutId(dto.getWorkoutId())
             .orElseThrow(() -> new RuntimeException("Workout not found"));
+
+    if (workoutRepository.existsByUserIdAndName(dto.getUserId(), dto.getName())) {
+      throw new ResponseStatusException(
+          HttpStatus.CONFLICT, "Workout already exists for this user");
+    }
+
     workout.setName(dto.getName());
     Workout updatedWorkout = workoutRepository.save(workout);
     return workoutMapper.toDto(updatedWorkout);
