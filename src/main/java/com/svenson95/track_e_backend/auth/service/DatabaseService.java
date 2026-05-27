@@ -1,32 +1,46 @@
 package com.svenson95.track_e_backend.auth.service;
 
+import com.svenson95.track_e_backend.auth.dto.GoogleUserInfoDTO;
 import com.svenson95.track_e_backend.database.model.User;
 import com.svenson95.track_e_backend.database.repository.UserRepository;
-import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DatabaseService {
-  @Autowired private UserRepository userRepository;
 
-  public User findByUserId(String googleId) {
-    return userRepository.findByGoogleId(googleId).get();
+  private final UserRepository userRepository;
+
+  public DatabaseService(UserRepository userRepository) {
+    this.userRepository = userRepository;
   }
 
-  public User findOrCreateUser(Map<String, Object> userInfo) {
-    String id = (String) userInfo.get("userId");
-    return userRepository.findByGoogleId(id).orElseGet(() -> this.createNewUser(userInfo));
+  public Optional<User> findByUserId(String googleId) {
+    if (googleId == null || googleId.isBlank()) {
+      return Optional.empty();
+    }
+
+    return userRepository.findByGoogleId(googleId);
   }
 
-  public User createNewUser(Map<String, Object> userInfo) {
+  public User findOrCreateUser(GoogleUserInfoDTO userInfo) {
+    return userRepository
+        .findByGoogleId(userInfo.userId())
+        .orElseGet(() -> createNewUser(userInfo));
+  }
+
+  private User createNewUser(GoogleUserInfoDTO userInfo) {
     User newUser = new User();
-    newUser.setGoogleId((String) userInfo.get("userId"));
-    newUser.setEmail((String) userInfo.get("email"));
-    newUser.setName((String) userInfo.get("name"));
-    newUser.setPicture((String) userInfo.get("picture"));
+
+    newUser.setGoogleId(userInfo.userId());
+    newUser.setEmail(userInfo.email());
+    newUser.setName(userInfo.name());
+    newUser.setPicture(userInfo.picture());
     newUser.setWeight(0);
     newUser.setHeight(0);
+
     return userRepository.save(newUser);
   }
+
+  public static class UserNotFoundException extends RuntimeException {}
 }

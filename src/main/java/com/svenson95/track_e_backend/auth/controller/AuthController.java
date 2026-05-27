@@ -1,11 +1,16 @@
 package com.svenson95.track_e_backend.auth.controller;
 
+import com.svenson95.track_e_backend.auth.dto.AuthDTO;
+import com.svenson95.track_e_backend.auth.dto.ErrorDTO;
+import com.svenson95.track_e_backend.auth.dto.GoogleLoginRequestDTO;
+import com.svenson95.track_e_backend.auth.dto.GoogleUserInfoDTO;
+import com.svenson95.track_e_backend.auth.dto.TokenExpiredDTO;
+import com.svenson95.track_e_backend.auth.service.AuthService;
 import com.svenson95.track_e_backend.auth.service.DatabaseService;
 import com.svenson95.track_e_backend.auth.service.GoogleAuthService;
 import com.svenson95.track_e_backend.auth.service.JwtService;
 import com.svenson95.track_e_backend.database.model.User;
-import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,65 +23,62 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+  private final AuthService authService;
   private final GoogleAuthService googleAuthService;
   private final JwtService jwtService;
+  private final DatabaseService databaseService;
 
-  @Autowired private DatabaseService databaseService;
-
-  public AuthController(GoogleAuthService googleAuthService, JwtService jwtService) {
+  public AuthController(
+      AuthService authService,
+      GoogleAuthService googleAuthService,
+      JwtService jwtService,
+      DatabaseService databaseService) {
+    this.authService = authService;
     this.googleAuthService = googleAuthService;
     this.jwtService = jwtService;
+    this.databaseService = databaseService;
   }
 
   @PostMapping("/google")
-  public ResponseEntity<Map<String, Object>> loginWithGoogle(
-      @RequestBody Map<String, String> body) {
-    String idToken = body.get("token");
+  public ResponseEntity<?> loginWithGoogle(@RequestBody GoogleLoginRequestDTO body) {
+    String token = body.token();
 
-    Map<String, Object> userInfo = googleAuthService.verifyToken(idToken);
-    if (userInfo == null) {
-      return ResponseEntity.status(401).body(Map.of("error", "Invalid Google Token"));
+    if (token == null || token.isBlank()) {
+      return authService.unauthorized("Missing Google Token");
     }
 
-    String jwt = jwtService.generateToken(userInfo);
-    User user = databaseService.findOrCreateUser(userInfo);
+    GoogleUserInfoDTO userInfo = googleAuthService.verifyToken(token);
 
-    return ResponseEntity.ok(
-        Map.of(
-            "token", jwt,
-            "user", user));
+    if (userInfo == null) {
+      return authService.unauthorized("Invalid Google Token");
+    }
+
+    User user = databaseService.findOrCreateUser(userInfo);
+    String jwt = jwtService.generateToken(userInfo);
+
+    return ResponseEntity.ok(new AuthDTO(jwt, user));
   }
 
   @GetMapping("/verify")
-  public ResponseEntity<Map<String, Object>> verifyToken(
-      @RequestHeader("Authorization") String authHeader) {
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-      return ResponseEntity.status(401)
-          .body(Map.of("error", "Missing or invalid Authorization header"));
-    }
-
-    String token = authHeader.substring(7);
+  public ResponseEntity<?> verifyToken(
+      @RequestHeader(value = "Authorization", required = false) String authHeader) {
 
     try {
-      Map<String, Object> claims = jwtService.validateToken(token);
-      String userId = (String) claims.get("userId");
-      User user = databaseService.findByUserId(userId);
+      AuthDTO auth = authService.verifyAuthHeader(authHeader);
+      return ResponseEntity.ok(auth);
 
-      if (user == null) {
-        return ResponseEntity.status(404).body(Map.of("error", "User not found"));
-      }
-
-      return ResponseEntity.ok(Map.of("token", token, "user", user));
+    } catch (AuthService.MissingAuthHeaderException e) {
+      return authService.unauthorized("Missing or invalid Authorization header");
 
     } catch (JwtService.TokenExpiredException e) {
-      return ResponseEntity.status(401)
-          .body(
-              Map.of(
-                  "valid", false,
-                  "error", "Token expired",
-                  "action", "relogin_with_google"));
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+          .body(new TokenExpiredDTO(false, "Token expired", "relogin_with_google"));
+
+    } catch (DatabaseService.UserNotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDTO("User not found"));
+
     } catch (Exception e) {
-      return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));
+      return authService.unauthorized("Invalid token");
     }
   }
 }
