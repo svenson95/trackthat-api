@@ -7,7 +7,9 @@ import com.svenson95.track_e_backend.database.model.User;
 import io.jsonwebtoken.Claims;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AuthService {
   private final DatabaseService databaseService;
   private final JwtService jwtService;
