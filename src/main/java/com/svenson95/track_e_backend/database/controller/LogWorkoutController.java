@@ -27,8 +27,8 @@ public class LogWorkoutController {
   }
 
   @GetMapping("/get/all/{userId}")
-  public ResponseEntity<List<LogWorkoutDTO>> getLogWorkoutsByDate(
-      @PathVariable Long date, @PathVariable String userId) {
+  public ResponseEntity<List<LogWorkoutDTO>> getAllLogsWorkoutByUserId(
+      @PathVariable String userId) {
     return logWorkoutService.findLogWorkoutsForUser(userId);
   }
 
