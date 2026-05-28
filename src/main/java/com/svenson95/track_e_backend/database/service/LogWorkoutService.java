@@ -44,19 +44,9 @@ public class LogWorkoutService {
         .orElseGet(() -> ResponseEntity.noContent().build());
   }
 
-  public ResponseEntity<List<LogWorkoutDTO>> findLogWorkoutsByDate(Long date, String userId) {
-    ZoneId zone = ZoneId.of("Europe/Berlin");
-    LocalDate targetDate = Instant.ofEpochSecond(date).atZone(zone).toLocalDate();
-
-    long startOfDay = targetDate.atStartOfDay(zone).toEpochSecond();
-    long endOfDay = targetDate.plusDays(1).atStartOfDay(zone).toEpochSecond() - 1;
-
+  public ResponseEntity<List<LogWorkoutDTO>> findLogWorkoutsForUser(String userId) {
     List<LogWorkoutDTO> logs =
-        logWorkoutRepository
-            .findAllByUserIdAndDateBetweenOrderByDateDesc(userId, startOfDay, endOfDay)
-            .stream()
-            .map(logWorkoutMapper::toDto)
-            .toList();
+        logWorkoutRepository.findAllByUserId(userId).stream().map(logWorkoutMapper::toDto).toList();
 
     return logs.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(logs);
   }

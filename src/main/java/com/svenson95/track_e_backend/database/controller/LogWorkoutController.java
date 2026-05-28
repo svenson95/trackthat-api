@@ -26,10 +26,10 @@ public class LogWorkoutController {
     return logWorkoutService.findLatestWorkoutByDate(date, userId);
   }
 
-  @GetMapping("/get/day/{date}/{userId}")
+  @GetMapping("/get/all/{userId}")
   public ResponseEntity<List<LogWorkoutDTO>> getLogWorkoutsByDate(
       @PathVariable Long date, @PathVariable String userId) {
-    return logWorkoutService.findLogWorkoutsByDate(date, userId);
+    return logWorkoutService.findLogWorkoutsForUser(userId);
   }
 
   @GetMapping("/get/latest-log/{exercise}/{userId}")
