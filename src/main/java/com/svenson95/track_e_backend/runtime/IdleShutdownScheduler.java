@@ -3,7 +3,6 @@ package com.svenson95.track_e_backend.runtime;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -16,7 +15,7 @@ public class IdleShutdownScheduler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(IdleShutdownScheduler.class);
 
-  private static final Duration IDLE_TIMEOUT = Duration.ofMinutes(30);
+  private static final Duration IDLE_TIMEOUT = Duration.ofMinutes(15);
   private static final long CHECK_INTERVAL_MINUTES = 1;
 
   private final ApiActivityTracker activityTracker;
