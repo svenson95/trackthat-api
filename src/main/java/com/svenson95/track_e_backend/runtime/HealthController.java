@@ -1,4 +1,4 @@
-package com.svenson95.track_e_backend.health.controller;
+package com.svenson95.track_e_backend.runtime;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
