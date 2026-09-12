@@ -1,5 +1,6 @@
 package com.svenson95.track_e_backend.database.controller;
 
+import com.svenson95.track_e_backend.database.dto.ExerciseWorkoutHistoryDTO;
 import com.svenson95.track_e_backend.database.dto.LogWorkoutDTO;
 import com.svenson95.track_e_backend.database.service.LogWorkoutService;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -32,13 +34,15 @@ public class LogWorkoutController {
     return logWorkoutService.findLogWorkoutsForUser(userId);
   }
 
-  @GetMapping("/get/latest-log/{exercise}/{userId}")
-  public ResponseEntity<LogWorkoutDTO> getLatestLogForExercise(
-      @PathVariable String exercise, @PathVariable String userId) {
-    return logWorkoutService
-        .findLatestLogForExercise(exercise, userId)
-        .map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.noContent().build());
+  @GetMapping("/get/exercise-history/{userId}")
+  public ResponseEntity<ExerciseWorkoutHistoryDTO> getWorkoutHistoryForExercise(
+      @PathVariable String userId,
+      @RequestParam String exercise,
+      @RequestParam(required = false) Long before,
+      @RequestParam(defaultValue = "2") int limit) {
+
+    return ResponseEntity.ok(
+        logWorkoutService.findWorkoutHistoryForExercise(exercise, userId, before, limit));
   }
 
   @PostMapping("/add/set/{date}/{userId}")

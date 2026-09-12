@@ -1,5 +1,6 @@
 package com.svenson95.track_e_backend.database.service;
 
+import com.svenson95.track_e_backend.database.dto.ExerciseWorkoutHistoryDTO;
 import com.svenson95.track_e_backend.database.dto.LogWorkoutDTO;
 import com.svenson95.track_e_backend.database.mapper.LogWorkoutMapper;
 import com.svenson95.track_e_backend.database.model.LogWorkout;
@@ -11,6 +12,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,8 @@ public class LogWorkoutService {
 
   private static final ZoneId USER_ZONE = ZoneId.of("Europe/Berlin");
   private static final Duration WORKOUT_DURATION = Duration.ofHours(6);
+
+  private static final int MAX_HISTORY_LIMIT = 10;
 
   public LogWorkoutService(
       LogWorkoutRepository logWorkoutRepository, LogWorkoutMapper logWorkoutMapper) {
@@ -51,25 +55,41 @@ public class LogWorkoutService {
     return logs.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(logs);
   }
 
-  public Optional<LogWorkoutDTO> findLatestLogForExercise(String exercise, String userId) {
-    long latestAllowedDate = Instant.now().minus(WORKOUT_DURATION).getEpochSecond();
+  public ExerciseWorkoutHistoryDTO findWorkoutHistoryForExercise(
+      String exercise, String userId, Long before, int limit) {
 
-    return logWorkoutRepository
-        .findTopByUserIdAndSetsExerciseAndDateLessThanEqualOrderByDateDesc(
-            userId, exercise, latestAllowedDate)
-        .map(
-            log -> {
-              List<LogWorkoutDTO.SetItemDTO> filteredSets =
-                  log.getSets().stream()
-                      .filter(set -> exercise.equals(set.getExercise()))
-                      .map(logWorkoutMapper::toDto)
-                      .toList();
+    int normalizedLimit = Math.max(1, Math.min(limit, MAX_HISTORY_LIMIT));
 
-              LogWorkoutDTO dto = logWorkoutMapper.toDto(log);
-              dto.setSets(filteredSets);
+    long beforeExclusive =
+        before != null ? before : Instant.now().minus(WORKOUT_DURATION).getEpochSecond() + 1;
 
-              return dto;
-            });
+    List<LogWorkout> logs =
+        logWorkoutRepository.findByUserIdAndSetsExerciseAndDateLessThanOrderByDateDesc(
+            userId, exercise, beforeExclusive, PageRequest.of(0, normalizedLimit + 1));
+
+    boolean hasMore = logs.size() > normalizedLimit;
+
+    List<LogWorkoutDTO> workouts =
+        logs.stream()
+            .limit(normalizedLimit)
+            .map(log -> toExerciseWorkoutDto(log, exercise))
+            .toList();
+
+    return new ExerciseWorkoutHistoryDTO(workouts, hasMore);
+  }
+
+  private LogWorkoutDTO toExerciseWorkoutDto(LogWorkout log, String exercise) {
+    LogWorkoutDTO dto = logWorkoutMapper.toDto(log);
+
+    List<LogWorkoutDTO.SetItemDTO> sets =
+        Optional.ofNullable(log.getSets()).orElseGet(List::of).stream()
+            .filter(set -> exercise.equals(set.getExercise()))
+            .map(logWorkoutMapper::toDto)
+            .toList();
+
+    dto.setSets(sets);
+
+    return dto;
   }
 
   public LogWorkoutDTO updateOrCreateLog(
