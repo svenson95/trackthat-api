@@ -8,8 +8,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class CorsConfig {
 
-  static String DEV_ENV = "http://localhost:8100";
-  static String PROD_ENV = "https://trackthat.vercel.app";
+  static final String DEV_ENV = "http://localhost:8100";
+  static final String PROD_ENV = "https://trackthat.vercel.app";
+  static final String IOS_ENV = "capacitor://localhost";
 
   @Bean
   public WebMvcConfigurer corsConfigurer() {
@@ -18,7 +19,7 @@ public class CorsConfig {
       public void addCorsMappings(CorsRegistry registry) {
         registry
             .addMapping("/**")
-            .allowedOrigins(DEV_ENV, PROD_ENV)
+            .allowedOrigins(DEV_ENV, PROD_ENV, IOS_ENV)
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .allowedHeaders("*");
       }
