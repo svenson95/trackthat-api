@@ -122,45 +122,29 @@ public class LogWorkoutService {
         .orElse(1L);
   }
 
-  public LogWorkoutDTO updateSetInLog(
-      String logId, String setIndex, LogWorkoutDTO.SetItemDTO setDto) {
+  public ResponseEntity<LogWorkoutDTO> updateSetsInLog(
+      String logId, List<LogWorkoutDTO.SetItemDTO> setDtos) {
+
     LogWorkout log =
         logWorkoutRepository
             .findByLogId(Long.valueOf(logId))
             .orElseThrow(() -> new RuntimeException("Log not found: " + logId));
-    int index = Integer.parseInt(setIndex);
 
-    if (log.getSets() == null || index < 0 || index >= log.getSets().size()) {
-      throw new RuntimeException("Set index out of bounds: " + setIndex);
-    }
-
-    log.getSets().set(index, logWorkoutMapper.toEntity(setDto));
-    log.normalizeSetIds();
-
-    LogWorkout saved = logWorkoutRepository.save(log);
-    return logWorkoutMapper.toDto(saved);
-  }
-
-  public ResponseEntity<?> deleteSetInLog(String logId, String itemId) {
-    LogWorkout log =
-        logWorkoutRepository
-            .findByLogId(Long.valueOf(logId))
-            .orElseThrow(() -> new RuntimeException("Log not found"));
-    long parsedItemId = Long.parseLong(itemId);
-    boolean removed = log.getSets().removeIf(set -> set.getItemId() == parsedItemId);
-
-    if (!removed) {
-      return ResponseEntity.notFound().build();
-    }
-
-    if (log.getSets().isEmpty()) {
+    if (setDtos == null || setDtos.isEmpty()) {
       logWorkoutRepository.delete(log);
+
       return ResponseEntity.noContent().build();
     }
 
+    log.setSets(
+        setDtos.stream()
+            .map(logWorkoutMapper::toEntity)
+            .collect(ArrayList::new, ArrayList::add, ArrayList::addAll));
+
     log.normalizeSetIds();
 
     LogWorkout saved = logWorkoutRepository.save(log);
+
     return ResponseEntity.ok(logWorkoutMapper.toDto(saved));
   }
 

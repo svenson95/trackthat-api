@@ -50,6 +50,18 @@ public class LogWorkoutDTO {
     this.sets = sets;
   }
 
+  public static class UpdateSetsDTO {
+    private List<SetItemDTO> sets;
+
+    public List<SetItemDTO> getSets() {
+      return sets;
+    }
+
+    public void setSets(List<SetItemDTO> sets) {
+      this.sets = sets;
+    }
+  }
+
   public static class SetItemDTO {
     private String exercise;
     private Double load;

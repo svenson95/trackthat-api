@@ -6,7 +6,6 @@ import com.svenson95.track_e_backend.database.service.LogWorkoutService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,16 +52,10 @@ public class LogWorkoutController {
     return logWorkoutService.updateOrCreateLog(date, setDto, userId);
   }
 
-  @PutMapping("/update/{logId}/{setIndex}")
-  public LogWorkoutDTO updateSetInLog(
-      @PathVariable String logId,
-      @PathVariable String setIndex,
-      @RequestBody LogWorkoutDTO.SetItemDTO setDto) {
-    return logWorkoutService.updateSetInLog(logId, setIndex, setDto);
-  }
+  @PutMapping("/update/{logId}/sets")
+  public ResponseEntity<LogWorkoutDTO> updateSetsInLog(
+      @PathVariable String logId, @RequestBody LogWorkoutDTO.UpdateSetsDTO request) {
 
-  @DeleteMapping("/delete/{logId}/{itemId}")
-  public ResponseEntity<?> deleteSetInLog(@PathVariable String logId, @PathVariable String itemId) {
-    return logWorkoutService.deleteSetInLog(logId, itemId);
+    return logWorkoutService.updateSetsInLog(logId, request.getSets());
   }
 }
