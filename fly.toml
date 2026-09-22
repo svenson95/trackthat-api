@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for trackthat-backend on 2026-09-11T11:03:12Z
+# fly.toml app configuration file generated for trackthat-api on 2026-09-11T11:03:12Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'trackthat-backend'
+app = 'trackthat-api'
 primary_region = 'fra'
 
 [build]

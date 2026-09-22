@@ -15,12 +15,12 @@
     </parent>
 
     <groupId>com.svenson95</groupId>
-    <artifactId>trackthat-backend</artifactId>
+    <artifactId>trackthat-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
-    <name>TrackThat Backend</name>
+    <name>TrackThat API</name>
     <description>
-        REST API for TrackThat providing Google authentication and CRUD operations for application data.
+        REST API for TrackThat providing authentication and application data management.
     </description>
 
     <properties>
