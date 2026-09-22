@@ -1,4 +1,4 @@
-# TrackThat backend
+# TrackThat api
 
 Backend API for the [TrackThat mobile app](https://github.com/svenson95/trackthat-mobile-app).
 
