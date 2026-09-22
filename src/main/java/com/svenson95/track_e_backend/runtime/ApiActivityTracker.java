@@ -3,15 +3,25 @@ package com.svenson95.track_e_backend.runtime;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
+import java.util.function.LongSupplier;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ApiActivityTracker {
 
-  private final AtomicLong lastActivityNanos = new AtomicLong(System.nanoTime());
+  private final LongSupplier nanoTimeSupplier;
 
+  private final AtomicLong lastActivityNanos;
   private final AtomicInteger activeRequests = new AtomicInteger();
+
+  public ApiActivityTracker() {
+    this(System::nanoTime);
+  }
+
+  ApiActivityTracker(LongSupplier nanoTimeSupplier) {
+    this.nanoTimeSupplier = nanoTimeSupplier;
+    this.lastActivityNanos = new AtomicLong(nanoTimeSupplier.getAsLong());
+  }
 
   public void requestStarted() {
     activeRequests.incrementAndGet();
@@ -28,12 +38,12 @@ public class ApiActivityTracker {
   }
 
   public Duration getIdleDuration() {
-    long idleNanos = System.nanoTime() - lastActivityNanos.get();
+    long idleNanos = nanoTimeSupplier.getAsLong() - lastActivityNanos.get();
 
     return Duration.ofNanos(idleNanos);
   }
 
   private void markActivity() {
-    lastActivityNanos.set(System.nanoTime());
+    lastActivityNanos.set(nanoTimeSupplier.getAsLong());
   }
 }
