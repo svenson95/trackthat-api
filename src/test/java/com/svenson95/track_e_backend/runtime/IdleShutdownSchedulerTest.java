@@ -14,6 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.svenson95.track_e_backend.runtime.IdleShutdownScheduler.IdleShutdownScheduler;
+import com.svenson95.track_e_backend.runtime.IdleShutdownScheduler.ShutdownHandler;
+
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Idle shutdown scheduler")
 class IdleShutdownSchedulerTest {
