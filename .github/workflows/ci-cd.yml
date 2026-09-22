@@ -26,7 +26,7 @@ jobs:
           cache: maven
 
       - name: Verify Application
-        run: ./mvnw --batch-mode verify
+        run: ./mvnw --batch-mode --no-transfer-progress verify
 
   deploy:
     name: Deploy to Production

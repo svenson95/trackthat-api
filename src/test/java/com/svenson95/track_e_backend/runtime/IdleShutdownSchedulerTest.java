@@ -6,28 +6,34 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Duration;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("Idle shutdown scheduler")
 class IdleShutdownSchedulerTest {
 
-  @Mock private ApiActivityTracker activityTracker;
+  @Mock
+  private ApiActivityTracker activityTracker;
 
-  @Mock private ShutdownHandler shutdownHandler;
+  @Mock
+  private ShutdownHandler shutdownHandler;
 
   private IdleShutdownScheduler scheduler;
 
   @BeforeEach
   void setUp() {
-    MockitoAnnotations.openMocks(this);
-
     scheduler = new IdleShutdownScheduler(activityTracker, shutdownHandler);
   }
 
   @Test
-  void shouldNotShutdownWhileRequestIsActive() {
+  @DisplayName("does not shut down while a request is active")
+  void doesNotShutdownWhileRequestIsActive() {
     when(activityTracker.hasActiveRequests()).thenReturn(true);
 
     scheduler.checkIdleTimeout();
@@ -37,7 +43,8 @@ class IdleShutdownSchedulerTest {
   }
 
   @Test
-  void shouldNotShutdownBeforeIdleTimeout() {
+  @DisplayName("does not shut down before the idle timeout")
+  void doesNotShutdownBeforeIdleTimeout() {
     when(activityTracker.hasActiveRequests()).thenReturn(false);
     when(activityTracker.getIdleDuration()).thenReturn(Duration.ofMinutes(14));
 
@@ -47,7 +54,8 @@ class IdleShutdownSchedulerTest {
   }
 
   @Test
-  void shouldShutdownAfterIdleTimeout() {
+  @DisplayName("shuts down when the idle timeout is reached")
+  void shutsDownWhenIdleTimeoutIsReached() {
     when(activityTracker.hasActiveRequests()).thenReturn(false);
     when(activityTracker.getIdleDuration()).thenReturn(Duration.ofMinutes(15));
 
@@ -57,7 +65,8 @@ class IdleShutdownSchedulerTest {
   }
 
   @Test
-  void shouldOnlyTriggerShutdownOnce() {
+  @DisplayName("triggers shutdown only once")
+  void triggersShutdownOnlyOnce() {
     when(activityTracker.hasActiveRequests()).thenReturn(false);
     when(activityTracker.getIdleDuration()).thenReturn(Duration.ofMinutes(15));
 
