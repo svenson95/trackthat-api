@@ -4,6 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
+import com.svenson95.track_e_backend.runtime.IdleShutdownScheduler.ShutdownHandler;
+
 @Component
 public class SpringApplicationShutdownHandler implements ShutdownHandler {
 

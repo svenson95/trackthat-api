@@ -1,19 +1,19 @@
-package com.svenson95.track_e_backend.runtime;
+package com.svenson95.track_e_backend.runtime.IdleShutdownScheduler;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.svenson95.track_e_backend.runtime.ApiActivityTracker;
+
 @Component
-@ConditionalOnProperty(
-    name = "app.idle-shutdown.enabled",
-    havingValue = "true",
-    matchIfMissing = true)
+@ConditionalOnProperty(name = "app.idle-shutdown.enabled", havingValue = "true", matchIfMissing = true)
 public class IdleShutdownScheduler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(IdleShutdownScheduler.class);
