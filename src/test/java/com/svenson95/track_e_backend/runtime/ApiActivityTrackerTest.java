@@ -1,12 +1,15 @@
 package com.svenson95.track_e_backend.runtime;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("API activity tracker")
 class ApiActivityTrackerTest {
 
   private AtomicLong nanoTime;
@@ -19,7 +22,8 @@ class ApiActivityTrackerTest {
   }
 
   @Test
-  void shouldTrackActiveRequest() {
+  @DisplayName("tracks an active request")
+  void tracksActiveRequest() {
     activityTracker.requestStarted();
 
     assertThat(activityTracker.hasActiveRequests()).isTrue();
@@ -30,7 +34,8 @@ class ApiActivityTrackerTest {
   }
 
   @Test
-  void shouldTrackMultipleActiveRequests() {
+  @DisplayName("tracks multiple active requests")
+  void tracksMultipleActiveRequests() {
     activityTracker.requestStarted();
     activityTracker.requestStarted();
 
@@ -44,14 +49,16 @@ class ApiActivityTrackerTest {
   }
 
   @Test
-  void shouldReturnIdleDurationSinceLastActivity() {
+  @DisplayName("returns the idle duration since the last activity")
+  void returnsIdleDurationSinceLastActivity() {
     nanoTime.set(Duration.ofSeconds(5).toNanos());
 
     assertThat(activityTracker.getIdleDuration()).isEqualTo(Duration.ofSeconds(5));
   }
 
   @Test
-  void shouldResetIdleDurationWhenRequestStarts() {
+  @DisplayName("resets the idle duration when a request starts")
+  void resetsIdleDurationWhenRequestStarts() {
     nanoTime.set(Duration.ofSeconds(5).toNanos());
 
     activityTracker.requestStarted();
@@ -62,7 +69,8 @@ class ApiActivityTrackerTest {
   }
 
   @Test
-  void shouldResetIdleDurationWhenRequestFinishes() {
+  @DisplayName("resets the idle duration when a request finishes")
+  void resetsIdleDurationWhenRequestFinishes() {
     activityTracker.requestStarted();
 
     nanoTime.set(Duration.ofSeconds(5).toNanos());
