@@ -37,7 +37,9 @@ public class AuthService {
 
     User user = databaseService.findByUserId(userId).orElseThrow(UserNotFoundException::new);
 
-    return new AuthDTO(token, user);
+    String refreshedToken = jwtService.refreshToken(claims);
+
+    return new AuthDTO(refreshedToken, user);
   }
 
   public ResponseEntity<ErrorDTO> unauthorized(String message) {

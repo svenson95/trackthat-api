@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +23,13 @@ public class GoogleAuthService {
 
   private final GoogleIdTokenVerifier verifier;
 
+  @Autowired
   public GoogleAuthService(@Value("${google.client-id}") String googleClientId) {
-    this.verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
-        .setAudience(List.of(googleClientId))
-        .build();
+    this(createVerifier(googleClientId));
+  }
+
+  GoogleAuthService(GoogleIdTokenVerifier verifier) {
+    this.verifier = verifier;
   }
 
   public GoogleUserInfoDTO verifyToken(String tokenString) {
@@ -52,5 +56,13 @@ public class GoogleAuthService {
       logger.warn("Google token verification failed", e);
       return null;
     }
+  }
+
+  private static GoogleIdTokenVerifier createVerifier(String googleClientId) {
+    return new GoogleIdTokenVerifier.Builder(
+        new NetHttpTransport(),
+        new GsonFactory())
+        .setAudience(List.of(googleClientId))
+        .build();
   }
 }
