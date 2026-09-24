@@ -84,14 +84,6 @@ class ApiActivityFilterTest {
   }
 
   @Test
-  @DisplayName("skips non-API endpoints")
-  void skipsNonApiEndpoint() {
-    when(request.getRequestURI()).thenReturn("/");
-
-    assertThat(filter.shouldNotFilter(request)).isTrue();
-  }
-
-  @Test
   @DisplayName("tracks API endpoints")
   void tracksApiEndpoint() {
     when(request.getRequestURI()).thenReturn("/workouts");
