@@ -13,7 +13,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class ApiActivityFilter extends OncePerRequestFilter {
 
-  private static final String HEALTH_ENDPOINT = "/api/health";
+  private static final String HEALTH_ENDPOINT = "/health";
 
   private final ApiActivityTracker activityTracker;
 
@@ -23,7 +23,9 @@ public class ApiActivityFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(
-      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      HttpServletRequest request,
+      HttpServletResponse response,
+      FilterChain filterChain)
       throws ServletException, IOException {
 
     activityTracker.requestStarted();
@@ -37,8 +39,6 @@ public class ApiActivityFilter extends OncePerRequestFilter {
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
-    String path = request.getRequestURI();
-
-    return !path.startsWith("/api/") || HEALTH_ENDPOINT.equals(path);
+    return HEALTH_ENDPOINT.equals(request.getRequestURI());
   }
 }
