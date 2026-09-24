@@ -18,7 +18,7 @@ import com.svenson95.trackthat_api.database.dto.LogWorkoutDTO;
 import com.svenson95.trackthat_api.database.service.LogWorkoutService;
 
 @RestController
-@RequestMapping("/api/logs-workout")
+@RequestMapping("/logs-workout")
 public class LogWorkoutController {
 
   @Autowired

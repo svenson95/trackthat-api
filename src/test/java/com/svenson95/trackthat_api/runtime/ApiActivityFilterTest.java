@@ -78,15 +78,7 @@ class ApiActivityFilterTest {
   @Test
   @DisplayName("skips the health endpoint")
   void skipsHealthEndpoint() {
-    when(request.getRequestURI()).thenReturn("/api/health");
-
-    assertThat(filter.shouldNotFilter(request)).isTrue();
-  }
-
-  @Test
-  @DisplayName("skips non-API endpoints")
-  void skipsNonApiEndpoint() {
-    when(request.getRequestURI()).thenReturn("/");
+    when(request.getRequestURI()).thenReturn("/health");
 
     assertThat(filter.shouldNotFilter(request)).isTrue();
   }
@@ -94,7 +86,7 @@ class ApiActivityFilterTest {
   @Test
   @DisplayName("tracks API endpoints")
   void tracksApiEndpoint() {
-    when(request.getRequestURI()).thenReturn("/api/workouts");
+    when(request.getRequestURI()).thenReturn("/workouts");
 
     assertThat(filter.shouldNotFilter(request)).isFalse();
   }

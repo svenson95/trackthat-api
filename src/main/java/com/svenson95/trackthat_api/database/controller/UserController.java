@@ -13,7 +13,7 @@ import com.svenson95.trackthat_api.database.dto.UserDTO;
 import com.svenson95.trackthat_api.database.service.UserService;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 public class UserController {
 
   @Autowired

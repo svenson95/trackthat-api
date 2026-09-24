@@ -21,7 +21,7 @@ import com.svenson95.trackthat_api.auth.service.JwtService;
 import com.svenson95.trackthat_api.database.model.User;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
   private final AuthService authService;
